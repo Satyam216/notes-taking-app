@@ -12,7 +12,6 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
 
-  // ✅ Fetch user & notes
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -24,11 +23,10 @@ export default function Dashboard() {
 
         if (userError) throw userError;
         if (!user) {
-          navigate("/"); // redirect to login if not logged in
+          navigate("/");
           return;
         }
 
-        // ✅ Get user details from "users" table
         const { data: userData, error: userDataError } = await supabase
           .from("users")
           .select("*")
@@ -44,7 +42,6 @@ export default function Dashboard() {
 
         setUser(userData);
 
-        // ✅ Fetch notes only for this user
         const { data: notesData, error: notesError } = await supabase
           .from("notes")
           .select("*")
@@ -64,7 +61,6 @@ export default function Dashboard() {
     getUser();
   }, [navigate]);
 
-  // ✅ Add Note
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
     try {
@@ -75,13 +71,13 @@ export default function Dashboard() {
 
       if (error) throw error;
       if (data) setNotes([data[0], ...notes]);
-      setNewNote(""); // clear input
+      setNewNote(""); 
     } catch (err: any) {
       alert("Error adding note: " + err.message);
     }
   };
 
-  // ✅ Delete Note
+  // Delete Note
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase.from("notes").delete().eq("id", id);
@@ -92,13 +88,11 @@ export default function Dashboard() {
     }
   };
 
-  // ✅ Logout
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/"); // redirect to login page
   };
 
-  // ✅ Loading/Error States
   if (loading) return <p className="p-6">Loading...</p>;
   if (error) return <p className="p-6 text-red-600">Error: {error}</p>;
   if (!user) return <p className="p-6">User not found. Please login.</p>;
@@ -106,26 +100,26 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center p-3 sm:p-6">
       <div className="w-full max-w-3xl">
+        
         {/* Top Bar */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3 sm:gap-0">
+        <div className="flex justify-between items-center mb-6">
           <h1 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
             <StickyNote className="text-blue-600" /> Dashboard
           </h1>
           <button
             onClick={handleLogout}
-            className="text-sm text-blue-600 hover:underline"
+            className="bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition text-sm sm:text-base"
           >
             Sign Out
           </button>
         </div>
 
-        {/* Welcome Card */}
         <div className="mb-6 p-4 sm:p-6 bg-white shadow rounded-lg text-center">
           <h2 className="text-lg sm:text-2xl font-bold">Welcome, {user.name}!</h2>
           <p className="text-gray-600 text-sm sm:text-base">Email: {user.email}</p>
         </div>
 
-        {/* Add Note Input */}
+
         <div className="flex flex-col sm:flex-row gap-2 mb-4">
           <input
             type="text"
@@ -138,11 +132,10 @@ export default function Dashboard() {
             onClick={handleAddNote}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base"
           >
-            Add
+            Create Note
           </button>
         </div>
 
-        {/* Notes Section */}
         <div className="bg-white shadow rounded-lg p-4 sm:p-6">
           <h2 className="text-base sm:text-lg font-bold mb-3">Your Notes</h2>
 
