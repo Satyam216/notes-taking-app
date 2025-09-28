@@ -8,10 +8,9 @@ export default function Login() {
   const [message, setMessage] = useState("");
   const [otpSent, setOtpSent] = useState(false);
 
-  // ------------------- OTP LOGIN -------------------
   const handleSendOtp = async () => {
     if (!email) {
-      setMessage("⚠️ Please enter your email first.");
+      setMessage("Please enter your email first.");
       return;
     }
 
@@ -24,7 +23,7 @@ export default function Login() {
   };
 
   const handleVerifyOtp = async () => {
-    const { data, error } = await supabase.auth.verifyOtp({
+    const {error} = await supabase.auth.verifyOtp({
       email,
       token: otp,
       type: "email",
@@ -38,14 +37,12 @@ export default function Login() {
     }
   };
 
-  // ------------------- GOOGLE LOGIN -------------------
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: window.location.origin + "/", 
-          // redirect wapas login page pe, taki neeche wala effect chale
         },
       });
 
@@ -55,7 +52,6 @@ export default function Login() {
     }
   };
 
-  // ✅ Yeh effect tab chalega jab user Google se redirect hokar wapas aata hai
   useEffect(() => {
     const checkAndInsertUser = async () => {
       const {
@@ -65,7 +61,6 @@ export default function Login() {
       if (session?.user) {
         const user = session.user;
 
-        // check in users table
         const { data: existingUser } = await supabase
           .from("users")
           .select("id")
@@ -83,8 +78,6 @@ export default function Login() {
             },
           ]);
         }
-
-        // ✅ Ab sidha dashboard bhejo
         window.location.href = "/dashboard";
       }
     };
@@ -92,7 +85,6 @@ export default function Login() {
     checkAndInsertUser();
   }, []);
 
-  // ------------------- UI -------------------
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       <div className="flex w-full md:w-1/2 items-center justify-center bg-gray-50 px-6 py-12">
@@ -104,7 +96,6 @@ export default function Login() {
             Please login to continue to your account
           </p>
 
-          {/* Email Input */}
           <div className="mt-6">
             <label
               htmlFor="email"
@@ -165,7 +156,6 @@ export default function Login() {
             </button>
           )}
 
-          {/* ✅ Google Login Button */}
           <button
             onClick={handleGoogleLogin}
             className="mt-4 w-full rounded-lg bg-red-500 py-3 text-white font-semibold shadow hover:bg-red-600 transition flex items-center justify-center gap-2"
@@ -178,6 +168,11 @@ export default function Login() {
             Sign in with Google
           </button>
 
+          {/* ✅ Message display */}
+          {message && (
+            <p className="mt-4 text-center text-sm text-red-600">{message}</p>
+          )}
+
           <p className="mt-6 text-center md:text-centre text-xs text-gray-500">
             Need an account?{" "}
             <a
@@ -187,7 +182,6 @@ export default function Login() {
               Create one
             </a>
           </p>
-
         </div>
       </div>
 
