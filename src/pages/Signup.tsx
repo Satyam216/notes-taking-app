@@ -232,7 +232,7 @@ export default function Signup() {
       {/* RIGHT SIDE IMAGE */}
       <div className="md:flex md:w-1/2 items-center justify-center">
         <img
-          src="../../images/signin_background.jpg"
+          src="/images/signin_background.jpg"
           alt="Signup Illustration"
           className="w-full h-full object-cover"
         />
