@@ -1,0 +1,140 @@
+"use client";
+import { useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [message, setMessage] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+
+  const handleSendOtp = async () => {
+    if (!email) {
+      setMessage("⚠️ Please enter your email first.");
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) setMessage(error.message);
+    else {
+      setOtpSent(true);
+      setMessage("A 6-digit OTP has been sent to your email.");
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: "email",
+    });
+
+    if (error) {
+      setMessage(error.message);
+    } else {
+      setMessage("Login successful! Redirecting...");
+      window.location.href = "/dashboard";
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col md:flex-row">
+  
+      <div className="flex w-full md:w-1/2 items-center justify-center bg-gray-50 px-6 py-12">
+        <div className="w-full max-w-md">
+          
+          <h1 className="text-3xl font-extrabold text-gray-900 text-center md:text-left">
+            Sign in
+          </h1>
+          <p className="mt-2 text-gray-600 text-center md:text-left text-sm">
+            Please login to continue to your account
+          </p>
+
+          <div className="mt-6">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 outline-none transition"
+            />
+          </div>
+
+          {otpSent && (
+            <div className="mt-4">
+              <label
+                htmlFor="otp"
+                className="block text-sm font-medium text-gray-700"
+              >
+                OTP
+              </label>
+              <input
+                id="otp"
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter 6-digit OTP"
+                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 outline-none transition"
+              />
+
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                className="mt-2 text-xs text-blue-600 hover:underline"
+              >
+                Resend OTP
+              </button>
+            </div>
+          )}
+
+          {!otpSent ? (
+            <button
+              onClick={handleSendOtp}
+              className="mt-6 w-full rounded-lg bg-blue-400 py-3 text-white font-semibold shadow hover:bg-blue-700 transition"
+            >
+              Get OTP
+            </button>
+          ) : (
+            <button
+              onClick={handleVerifyOtp}
+              className="mt-6 w-full rounded-lg bg-blue-600 py-3 text-white font-semibold shadow hover:bg-green-700 transition"
+            >
+              Verify OTP & Sign In
+            </button>
+          )}
+
+          {message && (
+            <p className="mt-4 text-center md:text-left text-sm text-green-600 font-medium">
+              {message}
+            </p>
+          )}
+
+          <p className="mt-6 text-center md:text-centre text-xs text-gray-500">
+            Need an account?{" "}
+            <a
+              href="/signup"
+              className="underline text-blue-600 hover:text-blue-700"
+            >
+              Create one
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <div className="hidden md:flex w-full md:w-1/2 bg-blue-100 items-center justify-center">
+        <img
+          src="../../images/signin_background.jpg"
+          alt="Signin Illustration"
+          className="w-full h-full object-cover"
+        />
+      </div>
+    </div>
+  );
+}
