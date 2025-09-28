@@ -123,14 +123,14 @@ npm run dev
 App will start on http://localhost:5173
 
 
-**Deployment**
+# **Deployment**
 Vercel
 Push your repo to GitHub.
 Import into Vercel
 Add .env variables in Vercel Project Settings → Environment Variables.
 Deploy 
 
-****How Auth Flow Works****
+# ****How Auth Flow Works****
 
 User visits / → can login using OTP or Google.
 
@@ -142,7 +142,8 @@ If logged in → redirect to /dashboard.
 
 Logout clears session → user auto-redirected back to /.
 
-**JWT Token in Supabase**
+
+# **JWT Token in Supabase**
 
 Supabase issues a JWT token automatically whenever a user logs in.
 
@@ -153,7 +154,7 @@ Using Row Level Security (RLS) in Supabase, only the owner of a note (matched vi
 This ensures multi-user security without extra backend code.
 
 
-****Common Issues & Fixes****
+# ****Common Issues & Fixes****
 
 Supabase env missing in production
 → Make sure .env variables are also set in Vercel Project Settings.
