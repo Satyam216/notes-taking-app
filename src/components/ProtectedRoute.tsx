@@ -1,4 +1,3 @@
-// src/components/ProtectedRoute.tsx
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { Navigate } from "react-router-dom";
@@ -29,7 +28,6 @@ export default function ProtectedRoute({ children }: Props) {
 
     check();
 
-    // also listen to changes while mounted
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setHasSession(!!session);
       setChecking(false);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
-import { Trash2, StickyNote } from "lucide-react"; // ✅ icons
+import { Trash2, StickyNote } from "lucide-react";
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -77,7 +77,6 @@ export default function Dashboard() {
     }
   };
 
-  // Delete Note
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase.from("notes").delete().eq("id", id);
@@ -101,7 +100,6 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-100 flex justify-center p-3 sm:p-6">
       <div className="w-full max-w-3xl">
         
-        {/* Top Bar */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
             <StickyNote className="text-blue-600" /> Dashboard

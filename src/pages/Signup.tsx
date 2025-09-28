@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { Eye, EyeOff } from "lucide-react"; // 👁 import icons
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -9,13 +9,28 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false); // 👈 OTP flag
-  const [showOtp, setShowOtp] = useState(false); // 👁 toggle
+  const [otpSent, setOtpSent] = useState(false);
+  const [showOtp, setShowOtp] = useState(false);
 
-  // ------------------- OTP SIGNUP -------------------
   const handleSignup = async () => {
     if (!email || !name || !dob) {
       setMessage("Please fill all fields.");
+      return;
+    }
+
+    const { data: existingUser, error: selectError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (selectError) {
+      setMessage("Something went wrong. Please try again.");
+      return;
+    }
+
+    if (existingUser) {
+      setMessage("User already exists, use another account.");
       return;
     }
 
@@ -27,7 +42,7 @@ export default function Signup() {
     if (error) setMessage(error.message);
     else {
       setMessage("OTP sent to your email.");
-      setOtpSent(true); // 👈 OTP input visible
+      setOtpSent(true);
     }
   };
 
@@ -60,13 +75,12 @@ export default function Signup() {
     }
   };
 
-  // ------------------- GOOGLE SIGNUP -------------------
   const handleGoogleSignup = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin, // will trigger listener
+          redirectTo: window.location.origin,
         },
       });
       if (error) throw error;
@@ -75,7 +89,6 @@ export default function Signup() {
     }
   };
 
-  // After auth → insert/check users table
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -110,10 +123,8 @@ export default function Signup() {
     };
   }, []);
 
-  // ------------------- UI -------------------
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      {/* LEFT SIDE FORM */}
       <div className="flex w-full md:w-1/2 items-center justify-center bg-gray-50 px-6 py-12">
         <div className="w-full max-w-md">
           <h1 className="text-4xl font-extrabold text-gray-900">Sign up</h1>
@@ -160,7 +171,6 @@ export default function Signup() {
               />
             </div>
 
-            {/* OTP input under email */}
             {otpSent && (
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700">
@@ -168,7 +178,7 @@ export default function Signup() {
                 </label>
                 <div className="relative">
                   <input
-                    type={showOtp ? "text" : "password"} // 👁 toggle
+                    type={showOtp ? "text" : "password"}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     placeholder="6-digit code"
@@ -218,9 +228,8 @@ export default function Signup() {
             </button>
           </>
 
-          {/* Message */}
           {message && (
-            <p className="mt-4 text-center text-sm text-blue-600">{message}</p>
+            <p className="mt-4 text-center text-sm text-red-600">{message}</p>
           )}
 
           <p className="mt-6 text-center md:text-centre text-xs text-gray-500">
@@ -232,7 +241,6 @@ export default function Signup() {
         </div>
       </div>
 
-      {/* RIGHT SIDE IMAGE */}
       <div className="md:flex md:w-1/2 items-center justify-center">
         <img
           src="/images/signin_background.jpg"

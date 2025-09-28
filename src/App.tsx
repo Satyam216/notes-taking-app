@@ -22,7 +22,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        {/* add other protected routes similarly */}
       </Routes>
     </BrowserRouter>
   );
