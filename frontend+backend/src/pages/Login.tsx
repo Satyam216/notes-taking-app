@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 export default function Login() {
@@ -8,6 +8,7 @@ export default function Login() {
   const [message, setMessage] = useState("");
   const [otpSent, setOtpSent] = useState(false);
 
+  // ------------------- OTP LOGIN -------------------
   const handleSendOtp = async () => {
     if (!email) {
       setMessage("⚠️ Please enter your email first.");
@@ -37,12 +38,65 @@ export default function Login() {
     }
   };
 
+  // ------------------- GOOGLE LOGIN -------------------
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + "/", 
+          // redirect wapas login page pe, taki neeche wala effect chale
+        },
+      });
+
+      if (error) throw error;
+    } catch (err: any) {
+      setMessage("Google Sign-In failed: " + err.message);
+    }
+  };
+
+  // ✅ Yeh effect tab chalega jab user Google se redirect hokar wapas aata hai
+  useEffect(() => {
+    const checkAndInsertUser = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        const user = session.user;
+
+        // check in users table
+        const { data: existingUser } = await supabase
+          .from("users")
+          .select("id")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (!existingUser) {
+          await supabase.from("users").insert([
+            {
+              id: user.id,
+              name: user.user_metadata.full_name || "Google User",
+              email: user.email,
+              dob: null,
+              created_at: new Date().toISOString(),
+            },
+          ]);
+        }
+
+        // ✅ Ab sidha dashboard bhejo
+        window.location.href = "/dashboard";
+      }
+    };
+
+    checkAndInsertUser();
+  }, []);
+
+  // ------------------- UI -------------------
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-  
       <div className="flex w-full md:w-1/2 items-center justify-center bg-gray-50 px-6 py-12">
         <div className="w-full max-w-md">
-          
           <h1 className="text-3xl font-extrabold text-gray-900 text-center md:text-left">
             Sign in
           </h1>
@@ -50,6 +104,7 @@ export default function Login() {
             Please login to continue to your account
           </p>
 
+          {/* Email Input */}
           <div className="mt-6">
             <label
               htmlFor="email"
@@ -110,11 +165,18 @@ export default function Login() {
             </button>
           )}
 
-          {message && (
-            <p className="mt-4 text-center md:text-left text-sm text-green-600 font-medium">
-              {message}
-            </p>
-          )}
+          {/* ✅ Google Login Button */}
+          <button
+            onClick={handleGoogleLogin}
+            className="mt-4 w-full rounded-lg bg-red-500 py-3 text-white font-semibold shadow hover:bg-red-600 transition flex items-center justify-center gap-2"
+          >
+            <img
+              src="https://www.svgrepo.com/show/355037/google.svg"
+              alt="Google"
+              className="w-5 h-5"
+            />
+            Sign in with Google
+          </button>
 
           <p className="mt-6 text-center md:text-centre text-xs text-gray-500">
             Need an account?{" "}
@@ -125,6 +187,7 @@ export default function Login() {
               Create one
             </a>
           </p>
+
         </div>
       </div>
 

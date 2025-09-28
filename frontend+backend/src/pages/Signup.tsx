@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 export default function Signup() {
@@ -10,7 +10,7 @@ export default function Signup() {
   const [step, setStep] = useState<"form" | "otp">("form");
   const [otp, setOtp] = useState("");
 
-  //Send OTP
+  // ------------------- OTP SIGNUP -------------------
   const handleSignup = async () => {
     if (!email || !name || !dob) {
       setMessage("Please fill all fields.");
@@ -29,7 +29,6 @@ export default function Signup() {
     }
   };
 
-  //Verify OTP and Save Profile
   const handleVerifyOtp = async () => {
     const { data, error } = await supabase.auth.verifyOtp({
       email,
@@ -44,14 +43,12 @@ export default function Signup() {
 
     const user = data.user;
     if (user) {
-      const { error: insertError } = await supabase
-        .from("users")
-        .upsert({
-          id: user.id,
-          name,
-          email,
-          dob,
-        });
+      const { error: insertError } = await supabase.from("users").upsert({
+        id: user.id,
+        name,
+        email,
+        dob,
+      });
 
       if (insertError) setMessage(insertError.message);
       else {
@@ -61,15 +58,79 @@ export default function Signup() {
     }
   };
 
+  // ------------------- GOOGLE SIGNUP -------------------
+  const handleGoogleSignup = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin, // will trigger listener
+        },
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      setMessage("Google Sign-Up failed: " + err.message);
+    }
+  };
+
+  // After auth → insert/check users table
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "SIGNED_IN" && session?.user) {
+          const user = session.user;
+
+          if (user.app_metadata?.provider === "google") {
+            // Check if user exists
+            const { data: existingUser, error: selectError } = await supabase
+              .from("users")
+              .select("id")
+              .eq("id", user.id)
+              .maybeSingle();
+
+            if (selectError) {
+              console.error(selectError.message);
+              return;
+            }
+
+            if (!existingUser) {
+              // Insert new Google user
+              const { error: insertError } = await supabase.from("users").insert([
+                {
+                  id: user.id,
+                  name: user.user_metadata?.full_name || "Google User",
+                  email: user.email,
+                  dob: null,
+                  created_at: new Date().toISOString(),
+                },
+              ]);
+
+              if (insertError) {
+                console.error("Insert error:", insertError.message);
+              }
+            }
+
+            // Redirect to dashboard
+            window.location.href = "/dashboard";
+          }
+        }
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // ------------------- UI -------------------
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
+      {/* LEFT SIDE FORM */}
       <div className="flex w-full md:w-1/2 items-center justify-center bg-gray-50 px-6 py-12">
         <div className="w-full max-w-md">
-          <h1 className="text-4xl font-extrabold text-gray-900">
-            Sign up
-          </h1>
+          <h1 className="text-4xl font-extrabold text-gray-900">Sign up</h1>
           <p className="mt-2 text-gray-600 text-sm">
-            Sign up with your details to get started
+            Sign up with your details or Google to get started
           </p>
 
           {step === "form" && (
@@ -112,12 +173,27 @@ export default function Signup() {
                 />
               </div>
 
-              
               <button
                 onClick={handleSignup}
                 className="mt-6 w-full rounded-lg bg-blue-400 py-3 text-white font-semibold hover:bg-blue-700 transition"
               >
                 Send OTP
+              </button>
+
+              <div className="mt-4 text-center">
+                <p className="text-sm text-gray-500">Or</p>
+              </div>
+
+              <button
+                onClick={handleGoogleSignup}
+                className="mt-4 w-full flex items-center justify-center gap-2 rounded-lg bg-red-500 py-3 text-white font-semibold hover:bg-red-600 transition"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  alt="Google"
+                  className="w-5 h-5"
+                />
+                Sign up with Google
               </button>
             </>
           )}
@@ -154,7 +230,7 @@ export default function Signup() {
       </div>
 
       {/* RIGHT SIDE IMAGE */}
-      <div className="md:flex md:w-1/2 items-center justify-center ">
+      <div className="md:flex md:w-1/2 items-center justify-center">
         <img
           src="../../images/signin_background.jpg"
           alt="Signup Illustration"
