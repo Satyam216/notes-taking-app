@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { Eye, EyeOff } from "lucide-react";  
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [message, setMessage] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [showOtp, setShowOtp] = useState(false);
 
   const handleSendOtp = async () => {
     if (!email) {
@@ -23,7 +25,7 @@ export default function Login() {
   };
 
   const handleVerifyOtp = async () => {
-    const {error} = await supabase.auth.verifyOtp({
+    const { error } = await supabase.auth.verifyOtp({
       email,
       token: otp,
       type: "email",
@@ -96,6 +98,7 @@ export default function Login() {
             Please login to continue to your account
           </p>
 
+          
           <div className="mt-6">
             <label
               htmlFor="email"
@@ -121,14 +124,24 @@ export default function Login() {
               >
                 OTP
               </label>
-              <input
-                id="otp"
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="Enter 6-digit OTP"
-                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 outline-none transition"
-              />
+
+              <div className="relative">
+                <input
+                  id="otp"
+                  type={showOtp ? "text" : "password"} 
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="Enter 6-digit OTP"
+                  className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 pr-10 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 outline-none transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowOtp(!showOtp)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showOtp ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
 
               <button
                 type="button"
@@ -150,7 +163,7 @@ export default function Login() {
           ) : (
             <button
               onClick={handleVerifyOtp}
-              className="mt-6 w-full rounded-lg bg-blue-600 py-3 text-white font-semibold shadow hover:bg-green-700 transition"
+              className="mt-6 w-full rounded-lg bg-blue-400 py-3 text-white font-semibold shadow hover:bg-green-700 transition"
             >
               Verify OTP & Sign In
             </button>
@@ -168,7 +181,6 @@ export default function Login() {
             Sign in with Google
           </button>
 
-          {/* ✅ Message display */}
           {message && (
             <p className="mt-4 text-center text-sm text-red-600">{message}</p>
           )}
