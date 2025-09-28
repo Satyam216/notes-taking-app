@@ -226,6 +226,16 @@ export default function Signup() {
           {message && (
             <p className="mt-4 text-center text-sm text-blue-600">{message}</p>
           )}
+
+          <p className="mt-6 text-center md:text-centre text-xs text-gray-500">
+            Already have an account??{" "}
+            <a
+              href="/"
+              className="underline text-blue-600 hover:text-blue-700"
+            >
+             Sign in
+            </a>
+          </p>
         </div>
       </div>
 
