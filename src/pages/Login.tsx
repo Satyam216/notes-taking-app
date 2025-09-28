@@ -185,7 +185,7 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="hidden md:flex w-full md:w-1/2 bg-blue-100 items-center justify-center">
+      <div className="md:flex md:w-1/2 items-center justify-center">
         <img
           src="/images/signin_background.jpg"
           alt="Signin Illustration"
