@@ -2,7 +2,7 @@
 A modern Notes Taking App built with React + Vite, Supabase Authentication, and Google OAuth.
 This app allows users to sign up/sign in using Email OTP or Google login, manage sessions, and securely access a dashboard.
 
-Features
+# Features
 
 ****Authentication****
 
@@ -54,7 +54,7 @@ TailwindCSS
 Lucide Icons
  – Icons (eye/eye-off etc.)
 
- **file Structure**
+ # **file Structure**
  src/
  ├── components/
  │    ├── AuthWatcher.tsx   # Handles session & redirect logic
@@ -69,14 +69,14 @@ Lucide Icons
  └── App.tsx                
 
 
-****Environment Variables****
+# Environment Variables
 
 Create a .env file in root:
 
 VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 
-##**Supabase Setup**##
+# **Supabase Setup**##
 
 >>Go to Supabase Dashboard
 
@@ -94,8 +94,8 @@ VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 
 >>Paste the keys in .env
 
-####**This project uses two main tables in Supabase:**####
-##**Postgre SQL Querry for users table and notes table:**##
+# **This project uses two main tables in Supabase:
+# **Postgre SQL Querry for users table and notes table:
 
 create table users (
   id uuid primary key default uuid_generate_v4(),
