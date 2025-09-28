@@ -1,5 +1,4 @@
 // src/App.tsx
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthWatcher from "./components/AuthWatcher";
 import ProtectedRoute from "./components/ProtectedRoute";
